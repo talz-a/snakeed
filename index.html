@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8">
         <title>Snakeed</title>
+        <meta name="description" content="Simple snake game with some cool animations">
+        <meta name="author" content="talz-a">
         <link rel="icon" type="image/x-icon" href="assets/favicon.png">
         <style>
-        body  { background-color: #181818; }
+            body {
+                background: #181818;
+                color: #ffffff;
+            }
         #game {
             border: solid #ffffff;
             padding: 0;
@@ -19,7 +25,9 @@
         </style>
     </head>
     <body>
-        <canvas id="game" width="800" height="600"></canvas>
+        <canvas id="game" width="1280" height="720">
+            Your browser does not support HTML5 canvas for some reason...
+        </canvas>
         <script type="module" src="index.mjs"></script>
     </body>
 </html>
