@@ -1,0 +1,15 @@
+{
+    "name": "snakeed",
+    "version": "1.0.0",
+    "description": "Simple snake game with some cool animations",
+    "main": "index.js",
+    "scripts": {
+        "watch": "tsc -w"
+    },
+    "keywords": [],
+    "author": "talz-a",
+    "license": "ISC",
+    "devDependencies": {
+        "typescript": "^5.8.2"
+    }
+}
