@@ -1,5 +1,25 @@
 <!DOCTYPE html>
 <html>
-    <head></head>
-    <body>Hello World</body>
+    <head>
+        <title>Snakeed</title>
+        <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+        <style>
+        body  { background-color: #181818; }
+        #game {
+            border: solid #ffffff;
+            padding: 0;
+            margin: auto;
+            display: block;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        </style>
+    </head>
+    <body>
+        <canvas id="game" width="800" height="600"></canvas>
+        <script type="module" src="index.mjs"></script>
+    </body>
 </html>
