@@ -1,3 +1,8 @@
+const tileSize = 80;
+const GAME_WIDTH = 1280;
+const GAME_HEIGHT = 720;
+const MOVEMENT_SPEED = 1;
+
 type Vector2 = { x: number; y: number; }
 
 enum Direction {
@@ -9,11 +14,27 @@ enum Direction {
 }
 
 const DIRECTION_VECTORS: Vector2[] = [
-    { x: -1,  y:  0  },
-    { x:  1,  y:  0  },
-    { x:  0,  y: -1  },
-    { x:  0,  y:  1  },
+    { x: -1, y: 0 },
+    { x: 1, y: 0 },
+    { x: 0, y: -1 },
+    { x: 0, y: 1 },
 ];
+
+function drawGrid(ctx: CanvasRenderingContext2D) {
+    ctx.strokeStyle = "red";
+    for (let x = 0; x < GAME_WIDTH; x += tileSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, GAME_HEIGHT);
+        ctx.stroke();
+    }
+    for (let y = 0; y < GAME_HEIGHT; y += tileSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(GAME_WIDTH, y);
+        ctx.stroke();
+    }
+}
 
 (() => {
     const gameCanvas = document.getElementById("game") as HTMLCanvasElement | null;
@@ -22,27 +43,7 @@ const DIRECTION_VECTORS: Vector2[] = [
     const ctx = gameCanvas.getContext("2d");
     if (!ctx) throw new Error("2D context is not supported for you...");
 
-    const tileSize = 80;
-    const GAME_WIDTH = 1280;
-    const GAME_HEIGHT = 720;
-
-
-    ctx.strokeStyle = "red";
-    for (let x = 0; x < GAME_WIDTH; x += tileSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, GAME_HEIGHT);
-        ctx.stroke();
-    }
-
-    for (let y = 0; y < GAME_HEIGHT; y += tileSize) {
-        ctx.beginPath();
-        ctx.moveTo(0 , y);
-        ctx.lineTo(GAME_WIDTH, y);
-        ctx.stroke();
-    }
-
-    let position: Vector2 = { x: 0, y : 0 };
+    let position: Vector2 = { x: 0, y: 0 };
     let direction: Direction = Direction.Right;
 
     window.addEventListener("keypress", (e) => {
@@ -66,6 +67,16 @@ const DIRECTION_VECTORS: Vector2[] = [
         }
     })
 
+    function updatePosition(ctx: CanvasRenderingContext2D) {
+        const direction_vector = DIRECTION_VECTORS[direction];
+        const new_position = { x: (direction_vector.x * MOVEMENT_SPEED) + position.x, y: (direction_vector.y * MOVEMENT_SPEED) + position.y }
+        position = new_position;
+
+        // draw a square in this position
+        let randomColor = '#0099b0';
+        ctx.fillStyle = randomColor;
+        ctx.fillRect(new_position.x, new_position.y, 200, 175);
+    }
 
     let prevTimestamp = 0;
     let fps = 0;
@@ -74,11 +85,17 @@ const DIRECTION_VECTORS: Vector2[] = [
         prevTimestamp = timestamp;
         fps = Math.round(1 / deltaTime);
 
+        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+        drawGrid(ctx);
+
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, 200, 100);
         ctx.font = '25px Arial';
         ctx.fillStyle = 'black';
         ctx.fillText("FPS: " + fps, 10, 30);
+
+        updatePosition(ctx);
 
         window.requestAnimationFrame(frame);
     }
@@ -87,5 +104,4 @@ const DIRECTION_VECTORS: Vector2[] = [
         prevTimestamp = timestamp;
         window.requestAnimationFrame(frame);
     })
-
 })()
