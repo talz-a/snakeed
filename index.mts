@@ -1,7 +1,10 @@
-const tileSize = 80;
+const TILE_SIZE = 80;
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
-const MOVEMENT_SPEED = 1;
+const MOVEMENT_SPEED = 40;
+const MOVE_INTERVAL = 200;
+const CELL1_COLOR = '#cccccc';
+const CELL2_COLOR = '#999999';
 
 type Vector2 = { x: number; y: number; }
 
@@ -14,26 +17,49 @@ enum Direction {
 }
 
 const DIRECTION_VECTORS: Vector2[] = [
-    { x: -1, y: 0 },
-    { x: 1, y: 0 },
-    { x: 0, y: -1 },
-    { x: 0, y: 1 },
+    { x: -1, y:  0 },
+    { x:  1, y:  0 },
+    { x:  0, y: -1 },
+    { x:  0, y:  1 },
 ];
 
-function drawGrid(ctx: CanvasRenderingContext2D) {
-    ctx.strokeStyle = "red";
-    for (let x = 0; x < GAME_WIDTH; x += tileSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, GAME_HEIGHT);
-        ctx.stroke();
+function drawBackground(ctx: CanvasRenderingContext2D) {
+    const cols = Math.ceil(GAME_WIDTH / TILE_SIZE);
+    const rows = Math.ceil(GAME_HEIGHT / TILE_SIZE);
+    for (let col = 0; col < cols; col++) {
+        for (let row = 0; row < rows; row++) {
+            const color = (row + col) % 2 === 0 ? CELL1_COLOR : CELL2_COLOR;
+            ctx.fillStyle = color;
+            const x = col * TILE_SIZE;
+            const y = row * TILE_SIZE;
+            ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        }
     }
-    for (let y = 0; y < GAME_HEIGHT; y += tileSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(GAME_WIDTH, y);
-        ctx.stroke();
+}
+
+let lastMoveTime = 0;
+function updatePosition(ctx: CanvasRenderingContext2D, position: Vector2, direction: Direction, timestamp: number) {
+    const direction_vector = DIRECTION_VECTORS[direction];
+
+    // Only move if enough time has passed
+    if (timestamp - lastMoveTime >= MOVE_INTERVAL) {
+        // Move one full tile instead of MOVEMENT_SPEED
+        position.x += direction_vector.x * TILE_SIZE;
+        position.y += direction_vector.y * TILE_SIZE;
+
+        // Update the last move time
+        lastMoveTime = timestamp;
     }
+
+    // Snap to the nearest tile (still useful for edge cases)
+    const snappedX = Math.round(position.x / TILE_SIZE) * TILE_SIZE;
+    const snappedY = Math.round(position.y / TILE_SIZE) * TILE_SIZE;
+    position.x = snappedX;
+    position.y = snappedY;
+
+    // Draw the object
+    ctx.fillStyle = '#0099b0';
+    ctx.fillRect(position.x, position.y, TILE_SIZE, TILE_SIZE);
 }
 
 (() => {
@@ -67,16 +93,6 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
         }
     })
 
-    function updatePosition(ctx: CanvasRenderingContext2D) {
-        const direction_vector = DIRECTION_VECTORS[direction];
-        const new_position = { x: (direction_vector.x * MOVEMENT_SPEED) + position.x, y: (direction_vector.y * MOVEMENT_SPEED) + position.y }
-        position = new_position;
-
-        // draw a square in this position
-        let randomColor = '#0099b0';
-        ctx.fillStyle = randomColor;
-        ctx.fillRect(new_position.x, new_position.y, 200, 175);
-    }
 
     let prevTimestamp = 0;
     let fps = 0;
@@ -87,15 +103,15 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
 
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-        drawGrid(ctx);
+        drawBackground(ctx);
 
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, 200, 100);
-        ctx.font = '25px Arial';
-        ctx.fillStyle = 'black';
-        ctx.fillText("FPS: " + fps, 10, 30);
+        // ctx.fillStyle = 'white';
+        // ctx.fillRect(0, 0, 200, 100);
+        // ctx.font = '25px Arial';
+        // ctx.fillStyle = 'black';
+        // ctx.fillText("FPS: " + fps, 10, 30);
 
-        updatePosition(ctx);
+        updatePosition(ctx, position, direction, timestamp);
 
         window.requestAnimationFrame(frame);
     }
