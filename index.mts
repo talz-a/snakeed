@@ -3,9 +3,9 @@ const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
 const MOVE_DURATION = 200;
 const MOVE_INTERVAL = 200;
-const CELL1_COLOR = '#cccccc';
-const CELL2_COLOR = '#999999';
-const PLAYER_COLOR = '#0099b0';
+const CELL1_COLOR = "#cccccc";
+const CELL2_COLOR = "#999999";
+const PLAYER_COLOR = "#00730e";
 
 type Vector2 = { x: number; y: number };
 
@@ -50,22 +50,18 @@ function drawBackground(ctx: CanvasRenderingContext2D): void {
 
 function drawPlayer(ctx: CanvasRenderingContext2D, position: Vector2): void {
     ctx.fillStyle = PLAYER_COLOR;
+    ctx.fillRect(position.x, position.y, TILE_SIZE, TILE_SIZE);
 
-    const wrappedX = emod(position.x, GAME_WIDTH);
-    const wrappedY = emod(position.y, GAME_HEIGHT);
-
-    ctx.fillRect(wrappedX, wrappedY, TILE_SIZE, TILE_SIZE);
-
-    if (wrappedX < TILE_SIZE) {
-        ctx.fillRect(wrappedX + GAME_WIDTH, wrappedY, TILE_SIZE, TILE_SIZE);
-    } else if (wrappedX > GAME_WIDTH - TILE_SIZE) {
-        ctx.fillRect(wrappedX - GAME_WIDTH, wrappedY, TILE_SIZE, TILE_SIZE);
+    if (position.x + TILE_SIZE > GAME_WIDTH) {
+        ctx.fillRect(position.x - GAME_WIDTH, position.y, TILE_SIZE, TILE_SIZE);
+    } else if (position.x < 0) {
+        ctx.fillRect(position.x + GAME_WIDTH, position.y, TILE_SIZE, TILE_SIZE);
     }
 
-    if (wrappedY < TILE_SIZE) {
-        ctx.fillRect(wrappedX, wrappedY + GAME_HEIGHT, TILE_SIZE, TILE_SIZE);
-    } else if (wrappedY > GAME_HEIGHT - TILE_SIZE) {
-        ctx.fillRect(wrappedX, wrappedY - GAME_HEIGHT, TILE_SIZE, TILE_SIZE);
+    if (position.y + TILE_SIZE > GAME_HEIGHT) {
+        ctx.fillRect(position.x, position.y - GAME_HEIGHT, TILE_SIZE, TILE_SIZE);
+    } else if (position.y < 0) {
+        ctx.fillRect(position.x, position.y + GAME_HEIGHT, TILE_SIZE, TILE_SIZE);
     }
 }
 
@@ -91,6 +87,8 @@ function updatePosition(state: PlayerState, timestamp: number): void {
 
         if (elapsed >= MOVE_DURATION) {
             state.position = { ...state.targetPosition };
+            state.position.x = emod(state.targetPosition.x, GAME_WIDTH);
+            state.position.y = emod(state.targetPosition.y, GAME_HEIGHT);
             state.targetPosition = null;
             state.startPosition = null;
         }
